@@ -548,6 +548,39 @@
                 padding: 10px 15px;
                 font-size: 1rem;
             }
+            /* Melhorias para mobile */
+@media (max-width: 768px) {
+    .food {
+        min-width: 70px;
+        min-height: 50px;
+        font-size: 1.1rem;
+        padding: 12px;
+        touch-action: none; /* Importante para touch events */
+    }
+    
+    .monster {
+        min-width: 100px;
+        padding: 15px;
+    }
+    
+    .monster-hunger {
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
+    }
+    
+    .monster-face {
+        font-size: 2.5rem;
+    }
+}
+
+/* Para evitar highlight azul no touch */
+.food {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
         }
     </style>
 </head>
@@ -870,6 +903,7 @@
                 
                 container.appendChild(monsterDiv);
             }
+            setTimeout(setupTouchEvents, 100);
         }
         
         function generateFoods() {
@@ -899,6 +933,93 @@
             
             // Embaralha as comidas
             gameState.foods.sort(() => Math.random() - 0.5);
+
+            // Função para suporte a touch em dispositivos móveis
+function setupTouchEvents() {
+    const foods = document.querySelectorAll('.food');
+    
+    foods.forEach(food => {
+        // Eventos de touch para mobile
+        food.addEventListener('touchstart', handleTouchStart, { passive: false });
+        food.addEventListener('touchmove', handleTouchMove, { passive: false });
+        food.addEventListener('touchend', handleTouchEnd);
+    });
+    
+    const monsters = document.querySelectorAll('.monster');
+    monsters.forEach(monster => {
+        monster.addEventListener('touchmove', handleTouchMove, { passive: false });
+        monster.addEventListener('touchend', handleTouchEnd);
+    });
+}
+
+let touchStartX = 0;
+let touchStartY = 0;
+let draggedFood = null;
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    draggedFood = e.target;
+    
+    draggedFood.classList.add('dragging');
+}
+
+function handleTouchMove(e) {
+    if (!draggedFood) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+    
+    // Move o elemento
+    draggedFood.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(5deg)`;
+    draggedFood.style.zIndex = '1000';
+}
+
+function handleTouchEnd(e) {
+    if (!draggedFood) return;
+    
+    // Encontra o monstro mais próximo
+    const monsters = document.querySelectorAll('.monster');
+    let closestMonster = null;
+    let closestDistance = Infinity;
+    
+    const foodRect = draggedFood.getBoundingClientRect();
+    const foodCenterX = foodRect.left + foodRect.width / 2;
+    const foodCenterY = foodRect.top + foodRect.height / 2;
+    
+    monsters.forEach(monster => {
+        const monsterRect = monster.getBoundingClientRect();
+        const monsterCenterX = monsterRect.left + monsterRect.width / 2;
+        const monsterCenterY = monsterRect.top + monsterRect.height / 2;
+        
+        const distance = Math.sqrt(
+            Math.pow(foodCenterX - monsterCenterX, 2) + 
+            Math.pow(foodCenterY - monsterCenterY, 2)
+        );
+        
+        if (distance < closestDistance && distance < 100) { // 100px de tolerância
+            closestDistance = distance;
+            closestMonster = monster;
+        }
+    });
+    
+    // Se encontrou um monstro próximo, alimenta ele
+    if (closestMonster) {
+        const foodValue = parseInt(draggedFood.getAttribute('data-food-value'));
+        const monsterId = parseInt(closestMonster.getAttribute('data-monster-id'));
+        feedMonster(foodValue, monsterId);
+    }
+    
+    // Reseta o estilo
+    draggedFood.style.transform = '';
+    draggedFood.style.zIndex = '';
+    draggedFood.classList.remove('dragging');
+    draggedFood = null;
+}
             
             // Renderiza as comidas
             gameState.foods.forEach((food, index) => {
@@ -914,7 +1035,9 @@
                 
                 container.appendChild(foodDiv);
             });
-        }
+             setTimeout(setupTouchEvents, 100);
+}
+        
         
         function createFood(targetValue) {
             if (gameState.level <= 2) {
