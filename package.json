@@ -1,0 +1,21 @@
+{
+  "name": "jogo-memoria-zoologico",
+  "version": "1.0.0",
+  "description": "Jogo da Memória do Zoológico com ranking online",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "jogo",
+    "memoria",
+    "zoologico",
+    "ranking"
+  ],
+  "author": "Seu Nome",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monstrinhos da Matemática</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .intro-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.8rem;
+            color: #fff;
+            text-shadow: 3px 3px 0px #4a5568;
+            margin-bottom: 15px;
+            animation: titleBounce 2s ease-in-out infinite;
+            text-align: center;
+        }
+        
+        .intro-subtitle {
+            font-size: 1.2rem;
+            color: #fff;
+            text-shadow: 2px 2px 0px #4a5568;
+            margin-bottom: 25px;
+            animation: subtitleFade 3s ease-in-out infinite;
+        }
+        
+        .player-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 300px;
+            max-width: 350px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .start-game-btn {
+            background: linear-gradient(145deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+        }
+        
+        .start-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 3px 3px 0px #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .timer {
+            color: #e53e3e;
+        }
+        
+        .score {
+            color: #38a169;
+        }
+        
+        .level {
+            color: #3182ce;
+        }
+        
+        .player-info {
+            color: #805ad5;
+        }
+        
+
+        
+        .monsters-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .monster {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            min-width: 150px;
+            position: relative;
+        }
+        
+        .monster.drag-over {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(72, 187, 120, 0.4);
+            border: 3px dashed #48bb78;
+        }
+        
+        .monster-number {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .monster-face {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        .monster-hunger {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            background: #ffd700;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            border: 3px solid #e2a308;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .monster-name {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        
+        .foods-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            min-height: 120px;
+        }
+        
+        .food {
+            background: linear-gradient(145deg, #ff8a65, #ff7043);
+            color: white;
+            border: 4px solid #ff5722;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: grab;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            min-width: 100px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+        }
+        
+        .food:before {
+            content: '🍎';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .food:nth-child(2n):before { content: '🍌'; }
+        .food:nth-child(3n):before { content: '🍊'; }
+        .food:nth-child(4n):before { content: '🍇'; }
+        .food:nth-child(5n):before { content: '🥕'; }
+        .food:nth-child(6n):before { content: '🍓'; }
+        
+        .food:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .food.dragging {
+            transform: rotate(5deg) scale(1.1);
+            z-index: 1000;
+            cursor: grabbing;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .game-over-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+        }
+        
+        .game-over h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+        
+        .final-score {
+            font-size: 1.5rem;
+            color: #38a169;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .game-over-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .ranking-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+        }
+        
+        .ranking-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .ranking-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .ranking-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .ranking-item:first-child {
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            color: #744210;
+        }
+        
+        .ranking-item:nth-child(2) {
+            background: linear-gradient(145deg, #c0c0c0, #e2e8f0);
+            color: #4a5568;
+        }
+        
+        .ranking-item:nth-child(3) {
+            background: linear-gradient(145deg, #cd7f32, #d69e2e);
+            color: #744210;
+        }
+        
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes subtitleFade {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes feedAnimation {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .feeding {
+            animation: feedAnimation 0.5s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .intro-title {
+                font-size: 2rem;
+            }
+            
+            .intro-subtitle {
+                font-size: 1rem;
+            }
+            
+            .player-form {
+                min-width: 280px;
+                max-width: 320px;
+                padding: 20px;
+            }
+        }
+        
+        @media (max-height: 700px) {
+            .intro-title {
+                font-size: 2.2rem;
+                margin-bottom: 10px;
+            }
+            
+            .intro-subtitle {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+            
+            .player-form {
+                padding: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .monsters-container {
+                gap: 15px;
+            }
+            
+            .monster {
+                min-width: 120px;
+                padding: 15px;
+            }
+            
+            .monster-face {
+                font-size: 3rem;
+            }
+            
+            .foods-container {
+                gap: 10px;
+            }
+            
+            .food {
+                min-width: 80px;
+                min-height: 60px;
+                font-size: 1.1rem;
+                padding: 15px;
+            }
+            
+            .game-info {
+                gap: 10px;
+            }
+            
+            .info-card {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela Inicial -->
+    <div class="intro-screen" id="introScreen">
+        <h1 class="intro-title">🎮 Monstrinhos da Matemática</h1>
+        <p class="intro-subtitle">Alimente-os com os números certos!</p>
+        
+        <div class="player-form">
+            <div class="form-group">
+                <label class="form-label" for="playerName">Nome do Jogador:</label>
+                <input type="text" id="playerName" class="form-input" placeholder="Digite seu nome" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="playerAge">Idade:</label>
+                <input type="number" id="playerAge" class="form-input" placeholder="Digite sua idade" min="5" max="15" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="playerSchool">Escola:</label>
+                <input type="text" id="playerSchool" class="form-input" placeholder="Nome da sua escola" required>
+            </div>
+            
+            <button class="start-game-btn" onclick="initializeGame()">🚀 Começar Aventura!</button>
+        </div>
+    </div>
+    
+    <script>
+        // Inicia a música da tela inicial quando a página carrega
+        window.addEventListener('load', function() {
+            startIntroMusic();
+        });
+    </script>
+    
+    <!-- Tela do Jogo -->
+    <div class="game-container" id="gameContainer">
+        <div class="header">
+            <h1 class="title">🎮 Monstrinhos da Matemática</h1>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-card timer">
+                ⏰ Tempo: <span id="timeLeft">120</span>s
+            </div>
+            <div class="info-card score">
+                ⭐ Pontos: <span id="score">0</span>
+            </div>
+            <div class="info-card level">
+                📈 Nível: <span id="level">1</span>
+            </div>
+            <div class="info-card player-info">
+                👤 <span id="playerDisplay"></span>
+            </div>
+        </div>
+        
+        <div class="monsters-container" id="monstersContainer">
+            <!-- Monstros serão gerados aqui -->
+        </div>
+        
+        <div class="foods-container" id="foodsContainer">
+            <!-- Comidas serão geradas aqui -->
+        </div>
+    </div>
+    
+    <!-- Tela de Fim de Jogo -->
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>🎉 Fim de Jogo!</h2>
+            <div class="final-score">Sua pontuação final: <span id="finalScore">0</span> pontos!</div>
+            <div class="game-over-buttons">
+                <button class="start-game-btn" onclick="restartGame()">🔄 Jogar Novamente</button>
+                <button class="start-game-btn" onclick="showRanking()">🏆 Ver Ranking</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela de Ranking -->
+    <div class="ranking-screen" id="rankingScreen">
+        <div class="ranking-content">
+            <h2 class="ranking-title">🏆 Ranking</h2>
+            <ul class="ranking-list" id="rankingList">
+                <!-- Rankings serão gerados aqui -->
+            </ul>
+            <div style="text-align: center;">
+                <button class="start-game-btn" onclick="hideRanking()">⬅️ Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            isPlaying: false,
+            timeLeft: 120,
+            score: 0,
+            level: 1,
+            monsters: [],
+            foods: [],
+            timer: null,
+            playerName: '',
+            playerAge: '',
+            playerSchool: '',
+            backgroundMusic: null
+        };
+        
+        // Função para criar sons usando Web Audio API
+        function createSound(frequency, duration, type = 'sine') {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Som de acerto
+        function playCorrectSound() {
+            try {
+                createSound(523.25, 0.2); // Dó
+                setTimeout(() => createSound(659.25, 0.2), 100); // Mi
+            } catch (e) {
+                console.log('Som não suportado');
+            }
+        }
+        
+        // Som de erro
+        function playErrorSound() {
+            try {
+                createSound(220, 0.3, 'sawtooth'); // Lá grave
+            } catch (e) {
+                console.log('Som não suportado');
+            }
+        }
+        
+        // Música de fundo - tema assombrado e agitado para monstrinhos
+        function startBackgroundMusic() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let currentTime = audioContext.currentTime;
+                const baseSpeed = 0.25; // Mais rápido e agitado
+                
+                function playMonsterMelody() {
+                    if (!gameState.isPlaying) return;
+                    
+                    const timeMultiplier = Math.max(0.2, 1 - (120 - gameState.timeLeft) / 200);
+                    const noteDuration = baseSpeed * timeMultiplier;
+                    
+                    // Melodia assombrada, agitada e misteriosa
+                    const melody = [
+                        // Parte 1: Assombrada e grave
+                        146.83, 164.81, 174.61, 196, // Ré, Mi, Fá, Sol (tons graves)
+                        220, 196, 174.61, 164.81, // Lá, Sol, Fá, Mi (descendo rápido)
+                        // Parte 2: Agitada e intensa
+                        261.63, 293.66, 329.63, 349.23, // Dó, Ré, Mi, Fá (subindo rápido)
+                        392, 440, 493.88, 523.25, // Sol, Lá, Si, Dó (clímax)
+                        // Parte 3: Caótica e assombrada
+                        466.16, 415.30, 369.99, 329.63, // Si♭, Sol#, Fá#, Mi (dissonante)
+                        293.66, 261.63, 233.08, 207.65 // Ré, Dó, Si♭, Lá♭ (final sombrio)
+                    ];
+                    
+                    melody.forEach((freq, index) => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, currentTime + index * noteDuration);
+                        
+                        // Varia o tipo de onda para criar tensão
+                        if (index < 8) {
+                            oscillator.type = 'sawtooth'; // Assombrado
+                        } else if (index < 16) {
+                            oscillator.type = 'square'; // Agitado
+                        } else {
+                            oscillator.type = 'triangle'; // Caótico
+                        }
+                        
+                        // Volume dinâmico para criar suspense
+                        let volume = 0.06;
+                        if (index >= 8 && index < 16) volume = 0.1; // Parte agitada mais alta
+                        if (index >= 16) volume = 0.08; // Final misterioso
+                        
+                        gainNode.gain.setValueAtTime(volume, currentTime + index * noteDuration);
+                        gainNode.gain.exponentialRampToValueAtTime(0.005, currentTime + index * noteDuration + noteDuration * 0.8);
+                        
+                        oscillator.start(currentTime + index * noteDuration);
+                        oscillator.stop(currentTime + index * noteDuration + noteDuration);
+                    });
+                    
+                    currentTime += melody.length * noteDuration;
+                    setTimeout(playMonsterMelody, melody.length * noteDuration * 1000 + 300); // Pausa menor para manter agitação
+                }
+                
+                playMonsterMelody();
+            } catch (e) {
+                console.log('Música não suportada');
+            }
+        }
+        
+        // Música da tela inicial - misteriosa e convidativa
+        function startIntroMusic() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let currentTime = audioContext.currentTime;
+                const noteDuration = 0.6;
+                
+                function playIntroMelody() {
+                    // Melodia misteriosa e convidativa
+                    const introMelody = [
+                        220, 261.63, 329.63, 392, // Lá, Dó, Mi, Sol (subindo misterioso)
+                        440, 392, 329.63, 293.66, // Lá, Sol, Mi, Ré (descendo)
+                        261.63, 329.63, 392, 523.25, // Dó, Mi, Sol, Dó (final épico)
+                        493.88, 440, 392, 329.63 // Si, Lá, Sol, Mi (conclusão)
+                    ];
+                    
+                    introMelody.forEach((freq, index) => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, currentTime + index * noteDuration);
+                        oscillator.type = 'triangle'; // Som suave e misterioso
+                        
+                        const volume = index < 4 ? 0.08 : (index < 8 ? 0.06 : 0.1);
+                        gainNode.gain.setValueAtTime(volume, currentTime + index * noteDuration);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + index * noteDuration + noteDuration * 0.9);
+                        
+                        oscillator.start(currentTime + index * noteDuration);
+                        oscillator.stop(currentTime + index * noteDuration + noteDuration);
+                    });
+                    
+                    currentTime += introMelody.length * noteDuration;
+                    setTimeout(playIntroMelody, introMelody.length * noteDuration * 1000 + 1000); // Pausa longa para atmosfera
+                }
+                
+                playIntroMelody();
+            } catch (e) {
+                console.log('Música não suportada');
+            }
+        }
+        
+        const monsterEmojis = ['👹', '👺', '🤖', '👾', '🦄', '🐲'];
+        const monsterNames = ['Numerito', 'Calculon', 'Sominha', 'Continha', 'Matemático', 'Algebrinha'];
+        
+        function initializeGame() {
+            const name = document.getElementById('playerName').value.trim();
+            const age = document.getElementById('playerAge').value;
+            const school = document.getElementById('playerSchool').value.trim();
+            
+            if (!name || !age || !school) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            const ageNum = parseInt(age);
+            if (ageNum < 5 || ageNum > 15) {
+                alert('Por favor, digite uma idade entre 5 e 15 anos!');
+                return;
+            }
+            
+            gameState.playerName = name;
+            gameState.playerAge = age + ' anos';
+            gameState.playerSchool = school;
+            
+            document.getElementById('playerDisplay').textContent = `${name} - ${age} anos`;
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            
+            startGame();
+        }
+        
+        function generateMonsters() {
+            const container = document.getElementById('monstersContainer');
+            container.innerHTML = '';
+            gameState.monsters = [];
+            
+            const numMonsters = Math.min(3 + Math.floor(gameState.level / 3), 6);
+            
+            for (let i = 0; i < numMonsters; i++) {
+                const hunger = Math.floor(Math.random() * Math.min(15, 5 + gameState.level * 2)) + 1;
+                const monster = {
+                    id: i,
+                    hunger: hunger,
+                    emoji: monsterEmojis[i % monsterEmojis.length],
+                    name: monsterNames[i % monsterNames.length]
+                };
+                
+                gameState.monsters.push(monster);
+                
+                const monsterDiv = document.createElement('div');
+                monsterDiv.className = 'monster';
+                monsterDiv.setAttribute('data-monster-id', i);
+                monsterDiv.innerHTML = `
+                    <div class="monster-number">${i + 1}</div>
+                    <div class="monster-face">${monster.emoji}</div>
+                    <div class="monster-hunger">${monster.hunger}</div>
+                    <div class="monster-name">${monster.name}</div>
+                `;
+                
+                // Adiciona eventos de drag and drop
+                monsterDiv.addEventListener('dragover', handleDragOver);
+                monsterDiv.addEventListener('drop', handleDrop);
+                monsterDiv.addEventListener('dragleave', handleDragLeave);
+                
+                container.appendChild(monsterDiv);
+            }
+        }
+        
+        function generateFoods() {
+            const container = document.getElementById('foodsContainer');
+            container.innerHTML = '';
+            gameState.foods = [];
+            
+            const numFoods = 6 + Math.floor(gameState.level / 2);
+            const correctAnswers = gameState.monsters.map(m => m.hunger);
+            
+            // Adiciona respostas corretas
+            correctAnswers.forEach(answer => {
+                const food = createFood(answer);
+                gameState.foods.push(food);
+            });
+            
+            // Adiciona respostas incorretas
+            while (gameState.foods.length < numFoods) {
+                let wrongAnswer;
+                do {
+                    wrongAnswer = Math.floor(Math.random() * 20) + 1;
+                } while (correctAnswers.includes(wrongAnswer));
+                
+                const food = createFood(wrongAnswer);
+                gameState.foods.push(food);
+            }
+            
+            // Embaralha as comidas
+            gameState.foods.sort(() => Math.random() - 0.5);
+            
+            // Renderiza as comidas
+            gameState.foods.forEach((food, index) => {
+                const foodDiv = document.createElement('div');
+                foodDiv.className = 'food';
+                foodDiv.draggable = true;
+                foodDiv.innerHTML = food.display;
+                foodDiv.setAttribute('data-food-value', food.value);
+                
+                // Adiciona eventos de drag
+                foodDiv.addEventListener('dragstart', handleDragStart);
+                foodDiv.addEventListener('dragend', handleDragEnd);
+                
+                container.appendChild(foodDiv);
+            });
+        }
+        
+        function createFood(targetValue) {
+            if (gameState.level <= 2) {
+                // Nível 1-2: Números simples
+                return {
+                    value: targetValue,
+                    display: targetValue.toString()
+                };
+            } else if (gameState.level <= 4) {
+                // Nível 3-4: Somas simples
+                const a = Math.floor(Math.random() * targetValue) + 1;
+                const b = targetValue - a;
+                return {
+                    value: targetValue,
+                    display: `${a} + ${b}`
+                };
+            } else if (gameState.level === 5) {
+                // Nível 5: Somas com 3 números
+                const a = Math.floor(Math.random() * (targetValue - 2)) + 1;
+                const b = Math.floor(Math.random() * (targetValue - a - 1)) + 1;
+                const c = targetValue - a - b;
+                return {
+                    value: targetValue,
+                    display: `${a} + ${b} + ${c}`
+                };
+            } else if (gameState.level >= 6) {
+                // Nível 6+: Subtrações e operações mistas
+                const operationType = Math.random();
+                
+                if (operationType < 0.4) {
+                    // Subtração simples
+                    const a = Math.min(20, targetValue + Math.floor(Math.random() * 8) + 3);
+                    const b = a - targetValue;
+                    return {
+                        value: targetValue,
+                        display: `${a} - ${b}`
+                    };
+                } else if (operationType < 0.7) {
+                    // Soma e subtração combinadas
+                    const a = Math.floor(Math.random() * 8) + 3;
+                    const b = Math.floor(Math.random() * 6) + 1;
+                    const c = Math.min(20, a + b - targetValue);
+                    if (c > 0) {
+                        return {
+                            value: targetValue,
+                            display: `${a} + ${b} - ${c}`
+                        };
+                    } else {
+                        // Fallback para subtração simples
+                        const fallbackA = Math.min(20, targetValue + 5);
+                        const fallbackB = fallbackA - targetValue;
+                        return {
+                            value: targetValue,
+                            display: `${fallbackA} - ${fallbackB}`
+                        };
+                    }
+                } else {
+                    // Subtração e soma
+                    const a = Math.min(20, targetValue + Math.floor(Math.random() * 6) + 3);
+                    const b = Math.floor(Math.random() * 5) + 2;
+                    const c = a - targetValue + b;
+                    if (c <= 20) {
+                        return {
+                            value: targetValue,
+                            display: `${a} - ${c} + ${b}`
+                        };
+                    } else {
+                        // Fallback para subtração simples
+                        const fallbackA = Math.min(20, targetValue + 5);
+                        const fallbackB = fallbackA - targetValue;
+                        return {
+                            value: targetValue,
+                            display: `${fallbackA} - ${fallbackB}`
+                        };
+                    }
+                }
+            }
+        }
+        
+        // Funções de Drag and Drop
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-food-value'));
+            e.target.classList.add('dragging');
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const foodValue = parseInt(e.dataTransfer.getData('text/plain'));
+            const monsterId = parseInt(e.currentTarget.getAttribute('data-monster-id'));
+            
+            feedMonster(foodValue, monsterId);
+        }
+        
+        function feedMonster(foodValue, monsterId) {
+            if (!gameState.isPlaying) return;
+            
+            // Encontra o monstro pelo ID único
+            const monsterIndex = gameState.monsters.findIndex(m => m.id === monsterId);
+            const monster = gameState.monsters[monsterIndex];
+            
+            if (monster && monster.hunger === foodValue) {
+                // Resposta correta!
+                const points = gameState.level; // Pontos = nível atual
+                gameState.score += points;
+                document.getElementById('score').textContent = gameState.score;
+                
+                // Som de acerto
+                playCorrectSound();
+                
+                // Animação de alimentação
+                const monsterElement = document.querySelector(`[data-monster-id="${monsterId}"]`);
+                monsterElement.classList.add('feeding');
+                setTimeout(() => {
+                    monsterElement.classList.remove('feeding');
+                    // Remove o elemento do DOM
+                    monsterElement.remove();
+                }, 500);
+                
+                // Remove o monstro alimentado da lista
+                gameState.monsters.splice(monsterIndex, 1);
+                
+                // Remove a comida correspondente
+                const foodElement = document.querySelector(`[data-food-value="${foodValue}"]`);
+                if (foodElement) {
+                    foodElement.remove();
+                }
+                
+                // Verifica se todos os monstros foram alimentados
+                if (gameState.monsters.length === 0) {
+                    gameState.level++;
+                    document.getElementById('level').textContent = gameState.level;
+                    setTimeout(() => {
+                        generateMonsters();
+                        generateFoods();
+                    }, 1000);
+                }
+            } else {
+                // Resposta incorreta - penalidade e feedback
+                const penalty = Math.floor(gameState.level / 2);
+                gameState.score = Math.max(0, gameState.score - penalty);
+                document.getElementById('score').textContent = gameState.score;
+                
+                // Som de erro
+                playErrorSound();
+                
+                // Feedback visual
+                const monsterElement = document.querySelector(`[data-monster-id="${monsterId}"]`);
+                if (monsterElement) {
+                    monsterElement.style.background = 'rgba(229, 62, 62, 0.3)';
+                    monsterElement.style.border = '3px solid #e53e3e';
+                    setTimeout(() => {
+                        monsterElement.style.background = 'rgba(255, 255, 255, 0.95)';
+                        monsterElement.style.border = 'none';
+                    }, 800);
+                }
+            }
+        }
+        
+        function startTimer() {
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('timeLeft').textContent = gameState.timeLeft;
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        function startGame() {
+            gameState.isPlaying = true;
+            gameState.timeLeft = 120;
+            gameState.score = 0;
+            gameState.level = 1;
+            
+            document.getElementById('timeLeft').textContent = gameState.timeLeft;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            
+            generateMonsters();
+            generateFoods();
+            startTimer();
+            startBackgroundMusic();
+        }
+        
+
+        
+        function endGame() {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timer);
+            
+            // Salva a pontuação no ranking
+            saveScore();
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameOver').style.display = 'flex';
+        }
+        
+        function saveScore() {
+  // Envia para a NOVA API
+  fetch('/api/scores-math', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      playerName: gameState.playerName,
+      playerAge: gameState.playerAge,
+      playerSchool: gameState.playerSchool,
+      score: gameState.score,
+      level: gameState.level
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Score salvo na API:', data);
+  })
+  .catch(error => {
+    console.error('Erro ao salvar score na API:', error);
+  });
+  
+  // Salva também no localStorage como backup
+  saveToLocalStorage();
+}
+
+function saveToLocalStorage() {
+  let rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
+  
+  rankings.push({
+    name: gameState.playerName,
+    age: gameState.playerAge,
+    school: gameState.playerSchool,
+    score: gameState.score,
+    level: gameState.level,
+    date: new Date().toLocaleDateString('pt-BR')
+  });
+  
+  // Ordena por pontuação (maior para menor)
+  rankings.sort((a, b) => b.score - a.score);
+  
+  // Mantém apenas os top 10
+  rankings = rankings.slice(0, 10);
+  
+  localStorage.setItem('mathMonstersRanking', JSON.stringify(rankings));
+}
+              
+        function showRanking() {
+            const rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
+            const rankingList = document.getElementById('rankingList');
+            
+            rankingList.innerHTML = '';
+            
+            if (rankings.length === 0) {
+                rankingList.innerHTML = '<li class="ranking-item">Nenhuma pontuação registrada ainda!</li>';
+            } else {
+                rankings.forEach((entry, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'ranking-item';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${index + 1}º ${entry.name}</strong><br>
+                            <small>${entry.age} - ${entry.school}</small><br>
+                            <small>${entry.date}</small>
+                        </div>
+                        <div>
+                            <strong>${entry.score} pts</strong><br>
+                            <small>Nível ${entry.level}</small>
+                        </div>
+                    `;
+                    rankingList.appendChild(li);
+                });
+            }
+            
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('rankingScreen').style.display = 'flex';
+        }
+        
+        function hideRanking() {
+            document.getElementById('rankingScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'flex';
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('introScreen').style.display = 'flex';
+            
+            // Limpa os containers
+            document.getElementById('monstersContainer').innerHTML = '';
+            document.getElementById('foodsContainer').innerHTML = '';
+            
+            // Reseta os campos do formulário
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerAge').value = '';
+            document.getElementById('playerSchool').value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97a7d26892bd1aed',t:'MTc1NzA5NzI3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

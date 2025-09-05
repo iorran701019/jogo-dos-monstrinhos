@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Jogo da Memória do Zoológico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #2c5530;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #2c5530;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+
+        .ranking-table th, .ranking-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #98FB98;
+        }
+
+        .ranking-table th {
+            background-color: #87CEEB;
+            color: white;
+            font-weight: bold;
+        }
+
+        .ranking-table tr:nth-child(even) {
+            background-color: rgba(152, 251, 152, 0.2);
+        }
+
+        .ranking-table tr:hover {
+            background-color: rgba(135, 206, 235, 0.3);
+        }
+
+        .position {
+            font-weight: bold;
+            font-size: 1.3rem;
+            width: 60px;
+        }
+
+        .top-1 { color: #FFD700; } /* Ouro */
+        .top-2 { color: #C0C0C0; } /* Prata */
+        .top-3 { color: #CD7F32; } /* Bronze */
+
+        .player-name {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .score {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #27ae60;
+        }
+
+        .date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-play {
+            background: #3498db;
+        }
+
+        .btn-play:hover {
+            background: #2980b9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.5rem;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+            font-size: 1.2rem;
+        }
+
+        .trophy {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .ranking-table {
+                font-size: 0.9rem;
+            }
+            
+            .ranking-table th, .ranking-table td {
+                padding: 10px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">🏆 Ranking do Zoológico 🐘</h1>
+        <p class="subtitle">Os melhores jogadores do Jogo da Memória do Zoológico</p>
+    </div>
+
+    <div class="container">
+        <div id="rankingContent">
+            <div class="loading">
+                🦁 Carregando ranking... 🐵
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="seu-jogo.html" class="btn btn-play">🎮 Jogar Agora</a>
+        <button onclick="refreshRanking()" class="btn">🔄 Atualizar</button>
+    </div>
+
+    <script>
+        // Função para carregar o ranking da API
+        async function loadRanking() {
+            const rankingContent = document.getElementById('rankingContent');
+            
+            try {
+                rankingContent.innerHTML = '<div class="loading">🦁 Carregando ranking... 🐵</div>';
+                
+                const response = await fetch('http://localhost:3000/api/scores');
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar o ranking');
+                }
+                
+                const scores = await response.json();
+                
+                if (scores.length === 0) {
+                    rankingContent.innerHTML = `
+                        <div class="error">
+                            <p>Nenhuma pontuação ainda! 🦒</p>
+                            <p>Seja o primeiro a jogar e aparecer aqui! 🎯</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Ordenar por pontuação (maior primeiro)
+                scores.sort((a, b) => b.score - a.score);
+                
+                let tableHTML = `
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Jogador</th>
+                                <th>Pontuação</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                scores.forEach((score, index) => {
+                    const positionClass = index < 3 ? `top-${index + 1}` : '';
+                    const position = index + 1;
+                    const date = new Date(score.date).toLocaleDateString('pt-BR');
+                    
+                    let trophy = '';
+                    if (position === 1) trophy = '🥇';
+                    else if (position === 2) trophy = '🥈';
+                    else if (position === 3) trophy = '🥉';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td class="position ${positionClass}">${trophy} ${position}º</td>
+                            <td class="player-name">${score.player_name || 'Anônimo'}</td>
+                            <td class="score">${score.score} pontos</td>
+                            <td class="date">${date}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                rankingContent.innerHTML = tableHTML;
+                
+            } catch (error) {
+                console.error('Erro ao carregar ranking:', error);
+                rankingContent.innerHTML = `
+                    <div class="error">
+                        <p>❌ Erro ao carregar o ranking</p>
+                        <p>Verifique se o servidor está rodando em http://localhost:3000</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Função para atualizar o ranking
+        function refreshRanking() {
+            loadRanking();
+        }
+
+        // Carregar o ranking quando a página for aberta
+        document.addEventListener('DOMContentLoaded', loadRanking);
+    </script>
+</body>
+</html>
