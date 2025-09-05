@@ -127,6 +127,26 @@
             padding: 20px;
             display: none;
         }
+
+        .end-game-btn {
+    background: linear-gradient(145deg, #e53e3e, #c53030);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+.end-game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(145deg, #c53030, #9b2c2c);
+}
         
         .header {
             text-align: center;
@@ -583,6 +603,9 @@
             <div class="info-card player-info">
                 👤 <span id="playerDisplay"></span>
             </div>
+            <div class="controls">
+    <button class="end-game-btn" onclick="endGame()">⏹️ Encerrar Jogo</button>
+</div>
         </div>
         
         <div class="monsters-container" id="monstersContainer">
@@ -1095,15 +1118,34 @@
 
         
         function endGame() {
-            gameState.isPlaying = false;
-            clearInterval(gameState.timer);
-            
-            // Salva a pontuação no ranking
-            saveScore();
-            
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('gameOver').style.display = 'flex';
-        }
+    if (!gameState.isPlaying) return;
+    
+    gameState.isPlaying = false;
+    clearInterval(gameState.timer);
+    
+    // Salva a pontuação no ranking
+    saveScore();
+    
+    document.getElementById('finalScore').textContent = gameState.score;
+    document.getElementById('gameOver').style.display = 'flex';
+}
+
+// Função para pausar o jogo (útil para testes)
+function pauseGame() {
+    if (!gameState.isPlaying) return;
+    
+    gameState.isPlaying = false;
+    clearInterval(gameState.timer);
+    alert('Jogo pausado! Pontuação: ' + gameState.score);
+}
+
+// Função para continuar o jogo
+function resumeGame() {
+    if (gameState.isPlaying) return;
+    
+    gameState.isPlaying = true;
+    startTimer();
+}
         
         function saveScore() {
   // Envia para a NOVA API
