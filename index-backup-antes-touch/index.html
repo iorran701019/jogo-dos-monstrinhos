@@ -11,12 +11,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -90,10 +84,6 @@
             font-size: 1rem;
             font-family: 'Nunito', sans-serif;
             transition: border-color 0.3s ease;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
         }
         
         .form-input:focus {
@@ -184,23 +174,7 @@
             color: #805ad5;
         }
         
-        .end-game-btn {
-            background: linear-gradient(145deg, #e53e3e, #c53030);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .end-game-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
+
         
         .monsters-container {
             display: flex;
@@ -328,34 +302,10 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
         
-        .food.selected {
-            transform: scale(1.1);
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-            animation: pulse 1s infinite;
-        }
-        
-        .monster.selected {
-            transform: scale(1.05);
-            border: 3px solid #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        
-        .touch-instructions {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #4a5568;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        .food.dragging {
+            transform: rotate(5deg) scale(1.1);
+            z-index: 1000;
+            cursor: grabbing;
         }
         
         .controls {
@@ -508,10 +458,6 @@
         }
         
         @media (max-width: 768px) {
-            body {
-                overflow-x: hidden;
-            }
-            
             .intro-title {
                 font-size: 2rem;
             }
@@ -524,83 +470,6 @@
                 min-width: 280px;
                 max-width: 320px;
                 padding: 20px;
-            }
-            
-            .game-container {
-                padding: 10px;
-            }
-            
-            .title {
-                font-size: 1.8rem;
-                margin-bottom: 10px;
-            }
-            
-            .game-info {
-                gap: 10px;
-                margin-bottom: 15px;
-            }
-            
-            .info-card {
-                padding: 10px 15px;
-                font-size: 1rem;
-            }
-            
-            .end-game-btn {
-                padding: 8px 15px;
-                font-size: 0.9rem;
-            }
-            
-            .touch-instructions {
-                padding: 10px;
-                font-size: 0.9rem;
-                margin-bottom: 15px;
-            }
-            
-            .monsters-container {
-                gap: 15px;
-                margin-bottom: 30px;
-            }
-            
-            .monster {
-                min-width: 120px;
-                padding: 15px;
-            }
-            
-            .monster-face {
-                font-size: 3rem;
-                margin-bottom: 8px;
-            }
-            
-            .monster-hunger {
-                font-size: 2rem;
-                width: 60px;
-                height: 60px;
-                margin-bottom: 8px;
-            }
-            
-            .monster-name {
-                font-size: 0.8rem;
-            }
-            
-            .foods-container {
-                gap: 15px;
-                margin-bottom: 25px;
-                min-height: 100px;
-            }
-            
-            .food {
-                min-width: 100px;
-                min-height: 80px;
-                font-size: 1.4rem;
-                padding: 20px;
-            }
-            
-            .food:before {
-                width: 30px;
-                height: 30px;
-                font-size: 1.4rem;
-                top: -8px;
-                right: -8px;
             }
         }
         
@@ -645,10 +514,10 @@
             }
             
             .food {
-                min-width: 100px;
-                min-height: 80px;
-                font-size: 1.4rem;
-                padding: 20px;
+                min-width: 80px;
+                min-height: 60px;
+                font-size: 1.1rem;
+                padding: 15px;
             }
             
             .game-info {
@@ -688,6 +557,13 @@
         </div>
     </div>
     
+    <script>
+        // Inicia a música da tela inicial quando a página carrega
+        window.addEventListener('load', function() {
+            startIntroMusic();
+        });
+    </script>
+    
     <!-- Tela do Jogo -->
     <div class="game-container" id="gameContainer">
         <div class="header">
@@ -707,11 +583,6 @@
             <div class="info-card player-info">
                 👤 <span id="playerDisplay"></span>
             </div>
-            <button class="end-game-btn" onclick="endGameEarly()">🏁 Encerrar</button>
-        </div>
-        
-        <div class="touch-instructions" id="touchInstructions" style="display: none;">
-            📱 <strong>Como Jogar:</strong> Toque na comida e depois no monstro correto!
         </div>
         
         <div class="monsters-container" id="monstersContainer">
@@ -731,7 +602,6 @@
             <div class="game-over-buttons">
                 <button class="start-game-btn" onclick="restartGame()">🔄 Jogar Novamente</button>
                 <button class="start-game-btn" onclick="showRanking()">🏆 Ver Ranking</button>
-                <button class="start-game-btn" onclick="goToMainMenu()">👤 Mudar Jogador</button>
             </div>
         </div>
     </div>
@@ -743,9 +613,8 @@
             <ul class="ranking-list" id="rankingList">
                 <!-- Rankings serão gerados aqui -->
             </ul>
-            <div class="game-over-buttons">
-                <button class="start-game-btn" onclick="playAgainFromRanking()">🎮 Jogar Novamente</button>
-                <button class="start-game-btn" onclick="goToMainMenu()">👤 Mudar Jogador</button>
+            <div style="text-align: center;">
+                <button class="start-game-btn" onclick="hideRanking()">⬅️ Voltar</button>
             </div>
         </div>
     </div>
@@ -762,16 +631,8 @@
             playerName: '',
             playerAge: '',
             playerSchool: '',
-            backgroundMusic: null,
-            isTouchDevice: false,
-            selectedFood: null,
-            musicInterval: null
+            backgroundMusic: null
         };
-        
-        // Detecta se é dispositivo touch
-        function detectTouchDevice() {
-            return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        }
         
         // Função para criar sons usando Web Audio API
         function createSound(frequency, duration, type = 'sine') {
@@ -814,14 +675,15 @@
         // Música de fundo - tema assombrado e agitado para monstrinhos
         function startBackgroundMusic() {
             try {
-                gameState.musicInterval = null;
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let currentTime = audioContext.currentTime;
+                const baseSpeed = 0.25; // Mais rápido e agitado
                 
                 function playMonsterMelody() {
                     if (!gameState.isPlaying) return;
                     
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const currentTime = audioContext.currentTime;
-                    const noteDuration = 0.3; // Duração fixa para evitar travadas
+                    const timeMultiplier = Math.max(0.2, 1 - (120 - gameState.timeLeft) / 200);
+                    const noteDuration = baseSpeed * timeMultiplier;
                     
                     // Melodia assombrada, agitada e misteriosa
                     const melody = [
@@ -837,8 +699,6 @@
                     ];
                     
                     melody.forEach((freq, index) => {
-                        if (!gameState.isPlaying) return;
-                        
                         const oscillator = audioContext.createOscillator();
                         const gainNode = audioContext.createGain();
                         
@@ -867,30 +727,58 @@
                         oscillator.start(currentTime + index * noteDuration);
                         oscillator.stop(currentTime + index * noteDuration + noteDuration);
                     });
+                    
+                    currentTime += melody.length * noteDuration;
+                    setTimeout(playMonsterMelody, melody.length * noteDuration * 1000 + 300); // Pausa menor para manter agitação
                 }
                 
-                // Toca a primeira vez imediatamente
                 playMonsterMelody();
-                
-                // Configura repetição contínua usando setInterval
-                gameState.musicInterval = setInterval(() => {
-                    if (gameState.isPlaying) {
-                        playMonsterMelody();
-                    } else {
-                        clearInterval(gameState.musicInterval);
-                    }
-                }, 7200); // Repete a cada 7.2 segundos (24 notas * 0.3s)
-                
             } catch (e) {
                 console.log('Música não suportada');
             }
         }
         
-        // Para a música de fundo
-        function stopBackgroundMusic() {
-            if (gameState.musicInterval) {
-                clearInterval(gameState.musicInterval);
-                gameState.musicInterval = null;
+        // Música da tela inicial - misteriosa e convidativa
+        function startIntroMusic() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let currentTime = audioContext.currentTime;
+                const noteDuration = 0.6;
+                
+                function playIntroMelody() {
+                    // Melodia misteriosa e convidativa
+                    const introMelody = [
+                        220, 261.63, 329.63, 392, // Lá, Dó, Mi, Sol (subindo misterioso)
+                        440, 392, 329.63, 293.66, // Lá, Sol, Mi, Ré (descendo)
+                        261.63, 329.63, 392, 523.25, // Dó, Mi, Sol, Dó (final épico)
+                        493.88, 440, 392, 329.63 // Si, Lá, Sol, Mi (conclusão)
+                    ];
+                    
+                    introMelody.forEach((freq, index) => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.setValueAtTime(freq, currentTime + index * noteDuration);
+                        oscillator.type = 'triangle'; // Som suave e misterioso
+                        
+                        const volume = index < 4 ? 0.08 : (index < 8 ? 0.06 : 0.1);
+                        gainNode.gain.setValueAtTime(volume, currentTime + index * noteDuration);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + index * noteDuration + noteDuration * 0.9);
+                        
+                        oscillator.start(currentTime + index * noteDuration);
+                        oscillator.stop(currentTime + index * noteDuration + noteDuration);
+                    });
+                    
+                    currentTime += introMelody.length * noteDuration;
+                    setTimeout(playIntroMelody, introMelody.length * noteDuration * 1000 + 1000); // Pausa longa para atmosfera
+                }
+                
+                playIntroMelody();
+            } catch (e) {
+                console.log('Música não suportada');
             }
         }
         
@@ -929,7 +817,7 @@
             container.innerHTML = '';
             gameState.monsters = [];
             
-            const numMonsters = Math.min(3, 2 + Math.floor(gameState.level / 3));
+            const numMonsters = Math.min(3 + Math.floor(gameState.level / 3), 6);
             
             for (let i = 0; i < numMonsters; i++) {
                 const hunger = Math.floor(Math.random() * Math.min(15, 5 + gameState.level * 2)) + 1;
@@ -952,8 +840,10 @@
                     <div class="monster-name">${monster.name}</div>
                 `;
                 
-                // Adiciona evento de clique
-                monsterDiv.addEventListener('click', () => handleMonsterClick(i));
+                // Adiciona eventos de drag and drop
+                monsterDiv.addEventListener('dragover', handleDragOver);
+                monsterDiv.addEventListener('drop', handleDrop);
+                monsterDiv.addEventListener('dragleave', handleDragLeave);
                 
                 container.appendChild(monsterDiv);
             }
@@ -964,7 +854,7 @@
             container.innerHTML = '';
             gameState.foods = [];
             
-            const numFoods = 6; // Sempre 6 comidinhas
+            const numFoods = 6 + Math.floor(gameState.level / 2);
             const correctAnswers = gameState.monsters.map(m => m.hunger);
             
             // Adiciona respostas corretas
@@ -991,11 +881,13 @@
             gameState.foods.forEach((food, index) => {
                 const foodDiv = document.createElement('div');
                 foodDiv.className = 'food';
+                foodDiv.draggable = true;
                 foodDiv.innerHTML = food.display;
                 foodDiv.setAttribute('data-food-value', food.value);
                 
-                // Adiciona evento de clique
-                foodDiv.addEventListener('click', () => handleFoodClick(food.value, foodDiv));
+                // Adiciona eventos de drag
+                foodDiv.addEventListener('dragstart', handleDragStart);
+                foodDiv.addEventListener('dragend', handleDragEnd);
                 
                 container.appendChild(foodDiv);
             });
@@ -1079,42 +971,33 @@
             }
         }
         
-        // Funções de Clique
-        function handleFoodClick(foodValue, foodElement) {
-            if (!gameState.isPlaying) return;
-            
-            // Remove seleção anterior
-            const previousSelected = document.querySelector('.food.selected');
-            if (previousSelected) {
-                previousSelected.classList.remove('selected');
-            }
-            
-            // Seleciona a nova comida
-            gameState.selectedFood = foodValue;
-            foodElement.classList.add('selected');
-            
-            // Vibração no mobile (se suportado)
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
+        // Funções de Drag and Drop
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-food-value'));
+            e.target.classList.add('dragging');
         }
         
-        function handleMonsterClick(monsterId) {
-            if (!gameState.isPlaying || gameState.selectedFood === null) return;
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
             
-            // Vibração no mobile (se suportado)
-            if (navigator.vibrate) {
-                navigator.vibrate(100);
-            }
+            const foodValue = parseInt(e.dataTransfer.getData('text/plain'));
+            const monsterId = parseInt(e.currentTarget.getAttribute('data-monster-id'));
             
-            feedMonster(gameState.selectedFood, monsterId);
-            
-            // Remove seleção
-            const selectedFood = document.querySelector('.food.selected');
-            if (selectedFood) {
-                selectedFood.classList.remove('selected');
-            }
-            gameState.selectedFood = null;
+            feedMonster(foodValue, monsterId);
         }
         
         function feedMonster(foodValue, monsterId) {
@@ -1198,16 +1081,10 @@
             gameState.timeLeft = 120;
             gameState.score = 0;
             gameState.level = 1;
-            gameState.isTouchDevice = detectTouchDevice();
             
             document.getElementById('timeLeft').textContent = gameState.timeLeft;
             document.getElementById('score').textContent = gameState.score;
             document.getElementById('level').textContent = gameState.level;
-            
-            // Mostra instruções de toque se for dispositivo móvel
-            if (gameState.isTouchDevice) {
-                document.getElementById('touchInstructions').style.display = 'block';
-            }
             
             generateMonsters();
             generateFoods();
@@ -1215,38 +1092,11 @@
             startBackgroundMusic();
         }
         
-        function endGameEarly() {
-            if (!gameState.isPlaying) {
-                console.log('Jogo não está rodando');
-                return;
-            }
-            
-            console.log('Tentando encerrar o jogo...');
-            
-            // Para todos os timers e música
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-                gameState.timer = null;
-            }
-            
-            // Para o estado do jogo e música
-            gameState.isPlaying = false;
-            stopBackgroundMusic();
-            
-            // Salva a pontuação
-            saveScore();
-            
-            // Mostra a tela de fim de jogo
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('gameOver').style.display = 'flex';
-            
-            console.log('Jogo encerrado com sucesso!');
-        }
+
         
         function endGame() {
             gameState.isPlaying = false;
             clearInterval(gameState.timer);
-            stopBackgroundMusic();
             
             // Salva a pontuação no ranking
             saveScore();
@@ -1256,26 +1106,53 @@
         }
         
         function saveScore() {
-            let rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
-            
-            rankings.push({
-                name: gameState.playerName,
-                age: gameState.playerAge,
-                school: gameState.playerSchool,
-                score: gameState.score,
-                level: gameState.level,
-                date: new Date().toLocaleDateString('pt-BR')
-            });
-            
-            // Ordena por pontuação (maior para menor)
-            rankings.sort((a, b) => b.score - a.score);
-            
-            // Mantém apenas os top 10
-            rankings = rankings.slice(0, 10);
-            
-            localStorage.setItem('mathMonstersRanking', JSON.stringify(rankings));
-        }
-        
+  // Envia para a NOVA API
+  fetch('/api/scores-math', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      playerName: gameState.playerName,
+      playerAge: gameState.playerAge,
+      playerSchool: gameState.playerSchool,
+      score: gameState.score,
+      level: gameState.level
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Score salvo na API:', data);
+  })
+  .catch(error => {
+    console.error('Erro ao salvar score na API:', error);
+  });
+  
+  // Salva também no localStorage como backup
+  saveToLocalStorage();
+}
+
+function saveToLocalStorage() {
+  let rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
+  
+  rankings.push({
+    name: gameState.playerName,
+    age: gameState.playerAge,
+    school: gameState.playerSchool,
+    score: gameState.score,
+    level: gameState.level,
+    date: new Date().toLocaleDateString('pt-BR')
+  });
+  
+  // Ordena por pontuação (maior para menor)
+  rankings.sort((a, b) => b.score - a.score);
+  
+  // Mantém apenas os top 10
+  rankings = rankings.slice(0, 10);
+  
+  localStorage.setItem('mathMonstersRanking', JSON.stringify(rankings));
+}
+              
         function showRanking() {
             const rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
             const rankingList = document.getElementById('rankingList');
@@ -1312,198 +1189,20 @@
             document.getElementById('gameOver').style.display = 'flex';
         }
         
-        function playAgainFromRanking() {
-            // Esconde a tela de ranking
-            document.getElementById('rankingScreen').style.display = 'none';
-            
-            // Limpa os containers
-            document.getElementById('monstersContainer').innerHTML = '';
-            document.getElementById('foodsContainer').innerHTML = '';
-            
-            // Reseta estado do jogo mas mantém dados do jogador
-            gameState.isTouchDevice = false;
-            gameState.selectedFood = null;
-            
-            // Mostra a tela do jogo e inicia
-            document.getElementById('gameContainer').style.display = 'block';
-            startGame();
-        }
-        
-        function goToMainMenu() {
-            // Para música do jogo
-            stopBackgroundMusic();
-            
-            // Esconde todas as telas
-            document.getElementById('rankingScreen').style.display = 'none';
+        function restartGame() {
             document.getElementById('gameOver').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'none';
-            
-            // Mostra a tela inicial
             document.getElementById('introScreen').style.display = 'flex';
-            document.getElementById('touchInstructions').style.display = 'none';
             
             // Limpa os containers
             document.getElementById('monstersContainer').innerHTML = '';
             document.getElementById('foodsContainer').innerHTML = '';
             
-            // Reseta completamente o estado do jogo
-            gameState.isTouchDevice = false;
-            gameState.selectedFood = null;
-            
-            // Limpa os campos do formulário
+            // Reseta os campos do formulário
             document.getElementById('playerName').value = '';
             document.getElementById('playerAge').value = '';
             document.getElementById('playerSchool').value = '';
         }
-        
-        function restartGame() {
-            // Esconde a tela de fim de jogo
-            document.getElementById('gameOver').style.display = 'none';
-            
-            // Limpa os containers
-            document.getElementById('monstersContainer').innerHTML = '';
-            document.getElementById('foodsContainer').innerHTML = '';
-            
-            // Reseta estado do jogo mas mantém dados do jogador
-            gameState.isTouchDevice = false;
-            gameState.selectedFood = null;
-            
-            // Mostra a tela do jogo e inicia
-            document.getElementById('gameContainer').style.display = 'block';
-            startGame();
-        }
-
-        const API_BASE_URL = window.location.origin;
-        
-        // Função para salvar a pontuação no servidor
-        async function saveScoreToServer() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/scores-math`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        playerName: gameState.playerName,
-                        playerAge: gameState.playerAge,
-                        playerSchool: gameState.playerSchool,
-                        score: gameState.score,
-                        level: gameState.level
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    console.log('Pontuação salva no servidor!');
-                } else {
-                    console.error('Erro ao salvar pontuação:', result.message);
-                    // Fallback para localStorage se o servidor falhar
-                    saveScoreToLocalStorage();
-                }
-            } catch (error) {
-                console.error('Erro ao conectar com o servidor:', error);
-                // Fallback para localStorage
-                saveScoreToLocalStorage();
-            }
-        }
-        
-        // Função para carregar ranking do servidor
-        async function loadRankingFromServer() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/scores-math`);
-                const scores = await response.json();
-                
-                const rankingList = document.getElementById('rankingList');
-                rankingList.innerHTML = '';
-                
-                if (scores.length === 0) {
-                    rankingList.innerHTML = '<li class="ranking-item">Nenhuma pontuação registrada ainda!</li>';
-                } else {
-                    scores.forEach((entry, index) => {
-                        const li = document.createElement('li');
-                        li.className = 'ranking-item';
-                        li.innerHTML = `
-                            <div>
-                                <strong>${index + 1}º ${entry.player_name}</strong><br>
-                                <small>${entry.player_age} - ${entry.player_school}</small><br>
-                                <small>${new Date(entry.date).toLocaleDateString('pt-BR')}</small>
-                            </div>
-                            <div>
-                                <strong>${entry.score} pts</strong><br>
-                                <small>Nível ${entry.level}</small>
-                            </div>
-                        `;
-                        rankingList.appendChild(li);
-                    });
-                }
-            } catch (error) {
-                console.error('Erro ao carregar ranking do servidor:', error);
-                // Fallback para localStorage
-                loadRankingFromLocalStorage();
-            }
-        }
-        
-        // Funções de fallback para localStorage
-        function saveScoreToLocalStorage() {
-            let rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
-            
-            rankings.push({
-                name: gameState.playerName,
-                age: gameState.playerAge,
-                school: gameState.playerSchool,
-                score: gameState.score,
-                level: gameState.level,
-                date: new Date().toLocaleDateString('pt-BR')
-            });
-            
-            rankings.sort((a, b) => b.score - a.score);
-            rankings = rankings.slice(0, 10);
-            
-            localStorage.setItem('mathMonstersRanking', JSON.stringify(rankings));
-        }
-        
-        function loadRankingFromLocalStorage() {
-            const rankings = JSON.parse(localStorage.getItem('mathMonstersRanking') || '[]');
-            const rankingList = document.getElementById('rankingList');
-            
-            rankingList.innerHTML = '';
-            
-            if (rankings.length === 0) {
-                rankingList.innerHTML = '<li class="ranking-item">Nenhuma pontuação registrada ainda!</li>';
-            } else {
-                rankings.forEach((entry, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'ranking-item';
-                    li.innerHTML = `
-                        <div>
-                            <strong>${index + 1}º ${entry.name}</strong><br>
-                            <small>${entry.age} - ${entry.school}</small><br>
-                            <small>${entry.date}</small>
-                        </div>
-                        <div>
-                            <strong>${entry.score} pts</strong><br>
-                            <small>Nível ${entry.level}</small>
-                        </div>
-                    `;
-                    rankingList.appendChild(li);
-                });
-            }
-        }
-        
-        // Modificar a função saveScore existente
-        function saveScore() {
-            // Tenta salvar no servidor primeiro
-            saveScoreToServer();
-        }
-        
-        // Modificar a função showRanking existente
-        function showRanking() {
-            // Tenta carregar do servidor primeiro
-            loadRankingFromServer();
-            
-            document.getElementById('gameOver').style.display = 'none';
-            document.getElementById('rankingScreen').style.display = 'flex';
-        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97d75898a428a3f0',t:'MTc1NzU5NTYwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97a7d26892bd1aed',t:'MTc1NzA5NzI3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

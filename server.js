@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname)); // Serve arquivos estáticos da pasta atual
 
 // Banco de dados em memória para MONSTRINHOS DA MATEMÁTICA
 let mathScores = [];
@@ -45,6 +44,7 @@ app.post('/api/scores-math', (req, res) => {
       return res.status(400).json({ success: false, message: 'Dados incompletos' });
     }
 
+    // Adiciona ao array mantendo apenas as 100 melhores pontuações para evitar consumo excessivo de memória
     mathScores.push({
       player_name: playerName,
       player_age: playerAge,
@@ -54,44 +54,33 @@ app.post('/api/scores-math', (req, res) => {
       date: new Date().toISOString()
     });
     
+    // Mantém apenas as 100 melhores pontuações
+    mathScores.sort((a, b) => b.score - a.score);
+    mathScores = mathScores.slice(0, 100);
+    
     res.json({ 
       success: true, 
       message: 'Score salvo com sucesso!'
     });
   } catch (error) {
     console.error('Erro ao salvar score:', error);
-    res.status(500).json({ success: false, message: 'Erro ao salvar score' });
+    res.status(500). json({ success: false, message: 'Erro ao salvar score' });
   }
 });
 
-// Rota principal - Serve o NOVO jogo
+// Rota principal - Serve o arquivo HTML do jogo
 app.get('/', (req, res) => {
-  try {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  } catch (error) {
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Monstrinhos da Matemática - Erro</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-          h1 { color: #e74c3c; }
-        </style>
-      </head>
-      <body>
-        <h1>❌ Erro ao carregar o jogo</h1>
-        <p>Arquivo index.html não encontrado</p>
-        <p>Verifique se o arquivo foi commitado no GitHub</p>
-      </body>
-      </html>
-    `);
-  }
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Health check para o Render
+// Rota de health check para o Render
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Servidor funcionando' });
+  res.json({ status: 'OK', message: 'Servidor funcionando', timestamp: new Date().toISOString() });
+});
+
+// Rota para qualquer outra requisição - serve o index.html (útil para Single Page Applications)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Inicia o servidor
