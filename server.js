@@ -11,16 +11,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Conectar ao banco de dados SQLite
-const dbPath = path.join(__dirname, 'ranking.db');
-const db = new sqlite3.Database(dbPath, (err) => {
+// Conectar ao banco de dados SQLite EM MEMÓRIA (não precisa de arquivo)
+const db = new sqlite3.Database(':memory:', (err) => {
   if (err) {
     console.error('Erro ao conectar ao banco de dados:', err);
   } else {
-    console.log('Conectado ao banco de dados SQLite.');
+    console.log('Conectado ao banco de dados SQLite em memória.');
     
-    // Criar tabela se não existir (para garantir)
-    db.run(`CREATE TABLE IF NOT EXISTS scores (
+    // Criar tabela
+    db.run(`CREATE TABLE scores (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       player_name TEXT NOT NULL,
       player_age TEXT NOT NULL,
@@ -32,7 +31,21 @@ const db = new sqlite3.Database(dbPath, (err) => {
       if (err) {
         console.error('Erro ao criar tabela:', err);
       } else {
-        console.log('Tabela "scores" verificada/criada com sucesso.');
+        console.log('Tabela "scores" criada com sucesso.');
+        
+        // Adicionar alguns dados de exemplo para teste
+        db.run(`INSERT INTO scores (player_name, player_age, player_school, score, level, date) VALUES 
+          ('João', '10 anos', 'Escola Municipal', 150, 5, datetime('now')),
+          ('Maria', '9 anos', 'Colégio Estadual', 120, 4, datetime('now')),
+          ('Pedro', '8 anos', 'Escola Particular', 100, 4, datetime('now')),
+          ('Ana', '10 anos', 'Escola Municipal', 90, 3, datetime('now')),
+          ('Lucas', '9 anos', 'Colégio Estadual', 80, 3, datetime('now')),
+          ('Carla', '8 anos', 'Escola Particular', 70, 2, datetime('now')),
+          ('Paulo', '7 anos', 'Escola Municipal', 60, 2, datetime('now')),
+          ('Julia', '8 anos', 'Colégio Estadual', 50, 2, datetime('now')),
+          ('Marcos', '10 anos', 'Escola Particular', 40, 1, datetime('now')),
+          ('Fernanda', '9 anos', 'Escola Municipal', 30, 1, datetime('now'))
+        `);
       }
     });
   }
@@ -78,8 +91,8 @@ app.post('/api/scores-math', (req, res) => {
 
     // Inserir no banco de dados
     db.run(
-      'INSERT INTO scores (player_name, player_age, player_school, score, level, date) VALUES (?, ?, ?, ?, ?, ?)',
-      [playerName, playerAge, playerSchool, score, level, new Date().toISOString()],
+      'INSERT INTO scores (player_name, player_age, player_school, score, level, date) VALUES (?, ?, ?, ?, ?, datetime("now"))',
+      [playerName, playerAge, playerSchool, score, level],
       function(err) {
         if (err) {
           console.error('Erro ao salvar score:', err);
