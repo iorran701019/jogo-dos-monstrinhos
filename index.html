@@ -455,19 +455,55 @@
         }
         
         .ranking-item:first-child {
-            background: linear-gradient(145deg, #ffd700, #ffed4e);
-            color: #744210;
-        }
-        
-        .ranking-item:nth-child(2) {
-            background: linear-gradient(145deg, #c0c0c0, #e2e8f0);
-            color: #4a5568;
-        }
-        
-        .ranking-item:nth-child(3) {
-            background: linear-gradient(145deg, #cd7f32, #d69e2e);
-            color: #744210;
-        }
+      background: linear-gradient(145deg, #ffd700, #ffed4e);
+      color: #744210;
+  }
+  
+  .ranking-item:nth-child(2) {
+      background: linear-gradient(145deg, #c0c0c0, #e2e8f0);
+      color: #4a5568;
+  }
+  
+  .ranking-item:nth-child(3) {
+      background: linear-gradient(145deg, #cd7f32, #d69e2e);
+      color: #744210;
+  }
+
+  /* ADICIONE ESTES ESTILOS PARA OS PRÓXIMOS 7 COLOCADOS */
+  .ranking-item:nth-child(4) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
+  
+  .ranking-item:nth-child(5) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
+  
+  .ranking-item:nth-child(6) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
+  
+  .ranking-item:nth-child(7) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
+  
+  .ranking-item:nth-child(8) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
+  
+  .ranking-item:nth-child(9) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
+  
+  .ranking-item:nth-child(10) {
+      background: linear-gradient(145deg, #a0aec0, #cbd5e0);
+      color: #2d3748;
+  }
         
         @keyframes titleBounce {
             0%, 100% { transform: translateY(0); }
@@ -1408,40 +1444,46 @@
         }
         
         // Função para carregar ranking do servidor
-        async function loadRankingFromServer() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/scores-math`);
-                const scores = await response.json();
-                
-                const rankingList = document.getElementById('rankingList');
-                rankingList.innerHTML = '';
-                
-                if (scores.length === 0) {
-                    rankingList.innerHTML = '<li class="ranking-item">Nenhuma pontuação registrada ainda!</li>';
-                } else {
-                    scores.forEach((entry, index) => {
-                        const li = document.createElement('li');
-                        li.className = 'ranking-item';
-                        li.innerHTML = `
-                            <div>
-                                <strong>${index + 1}º ${entry.player_name}</strong><br>
-                                <small>${entry.player_age} - ${entry.player_school}</small><br>
-                                <small>${new Date(entry.date).toLocaleDateString('pt-BR')}</small>
-                            </div>
-                            <div>
-                                <strong>${entry.score} pts</strong><br>
-                                <small>Nível ${entry.level}</small>
-                            </div>
-                        `;
-                        rankingList.appendChild(li);
-                    });
-                }
-            } catch (error) {
-                console.error('Erro ao carregar ranking do servidor:', error);
-                // Fallback para localStorage
-                loadRankingFromLocalStorage();
-            }
-        }
+        // Função para carregar ranking do servidor
+async function loadRankingFromServer() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/scores-math`);
+    
+    if (!response.ok) {
+      throw new Error('Erro ao carregar ranking');
+    }
+    
+    const scores = await response.json();
+    
+    const rankingList = document.getElementById('rankingList');
+    rankingList.innerHTML = '';
+    
+    if (scores.length === 0) {
+      rankingList.innerHTML = '<li class="ranking-item">Nenhuma pontuação registrada ainda!</li>';
+    } else {
+      scores.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.className = 'ranking-item';
+        li.innerHTML = `
+          <div>
+            <strong>${index + 1}º ${entry.player_name}</strong><br>
+            <small>${entry.player_age} - ${entry.player_school}</small><br>
+            <small>${new Date(entry.date).toLocaleDateString('pt-BR')}</small>
+          </div>
+          <div>
+            <strong>${entry.score} pts</strong><br>
+            <small>Nível ${entry.level}</small>
+          </div>
+        `;
+        rankingList.appendChild(li);
+      });
+    }
+  } catch (error) {
+    console.error('Erro ao carregar ranking do servidor:', error);
+    // Fallback para localStorage
+    loadRankingFromLocalStorage();
+  }
+}
         
         // Funções de fallback para localStorage
         function saveScoreToLocalStorage() {
