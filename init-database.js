@@ -11,7 +11,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// Criar tabela se não existir
+// Criar tabela se não existir teste
 db.run(`CREATE TABLE IF NOT EXISTS scores (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   player_name TEXT NOT NULL,
