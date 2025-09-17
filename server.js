@@ -105,6 +105,71 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// server.js - Adicione estas linhas ANTES do app.listen()
+
+// 1. Exportar ranking em JSON (como documento)
+app.get('/api/ranking.json', (req, res) => {
+  try {
+    const topScores = [...mathScores]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 50); // Top 50 scores
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename=ranking.json');
+    res.json({
+      generated_at: new Date().toISOString(),
+      total_scores: mathScores.length,
+      scores: topScores
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao exportar ranking' });
+  }
+});
+
+// 2. Exportar ranking em CSV (planilha)
+app.get('/api/ranking.csv', (req, res) => {
+  try {
+    let csv = 'Posição,Nome,Idade,Escola,Pontuação,Nível,Data\n';
+    
+    const sortedScores = [...mathScores].sort((a, b) => b.score - a.score);
+    
+    sortedScores.forEach((score, index) => {
+      csv += `${index + 1},"${score.player_name}","${score.player_age}","${score.player_school}",${score.score},${score.level},"${new Date(score.date).toLocaleDateString('pt-BR')}"\n`;
+    });
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=ranking.csv');
+    res.send(csv);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao exportar CSV' });
+  }
+});
+
+// 3. Exportar ranking em TXT (texto simples)
+app.get('/api/ranking.txt', (req, res) => {
+  try {
+    let text = '🏆 RANKING - MONSTRINHOS DA MATEMÁTICA 🏆\n';
+    text += `Gerado em: ${new Date().toLocaleDateString('pt-BR')}\n`;
+    text += '=' .repeat(50) + '\n\n';
+    
+    const sortedScores = [...mathScores].sort((a, b) => b.score - a.score);
+    
+    sortedScores.forEach((score, index) => {
+      text += `${index + 1}º - ${score.player_name} (${score.player_age})\n`;
+      text += `   Escola: ${score.player_school}\n`;
+      text += `   Pontuação: ${score.score} pts | Nível: ${score.level}\n`;
+      text += `   Data: ${new Date(score.date).toLocaleDateString('pt-BR')}\n`;
+      text += '-'.repeat(30) + '\n';
+    });
+    
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Disposition', 'attachment; filename=ranking.txt');
+    res.send(text);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao exportar texto' });
+  }
+});
+
 // Inicia o servidor
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Servidor Monstrinhos da Matemática rodando na porta ${PORT}`);
